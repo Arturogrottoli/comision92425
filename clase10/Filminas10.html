@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 10: Fetch API y Librerías Externas - Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • BIENVENIDA</span>
+            <h1 style="font-size: 46px;">Fetch API y Librerías Externas en JavaScript</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Clase 10: fetch() y Response | JSON | SweetAlert2 y Toastify
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: División Módulo 01 -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>Fetch API: Pidiendo Datos a un Servidor</h2>
+            <p style="font-size: 20px;">Vas a aprender a conectar tu JavaScript con el mundo exterior, pidiendo información real a un servidor.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Analogía del restaurante -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">El Restaurante: La Anatomía de una Petición</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Analogía</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Imaginá que estás en un restaurante. Vos sos el cliente (el navegador), el mozo es la Fetch API, y la cocina es el servidor donde vive la base de datos.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-bell-concierge"></i> No vas directamente a la cocina: le hacés el pedido al mozo (una petición HTTP), y esperás.</li>
+                            <li><i class="fa-solid fa-utensils"></i> El mozo vuelve con una bandeja TAPADA: eso es el objeto <code>Response</code>, todavía no es "la comida".</li>
+                            <li><i class="fa-solid fa-box-open"></i> "Destapar y servir" el plato es, en JavaScript, extraer los datos con <code>.json()</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Mozo llevando una bandeja tapada en un restaurante" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: ¿Qué es fetch? -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">¿Qué es fetch()?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">De XMLHttpRequest a Fetch</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Históricamente, pedir datos a un servidor desde JavaScript era complejo y tedioso, con una tecnología llamada XMLHttpRequest.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-bolt"></i> Los navegadores modernos introdujeron Fetch API: más sencilla, limpia y basada en Promesas.</li>
+                            <li><i class="fa-solid fa-globe"></i> <code>fetch()</code> pide información a una URL externa, de forma asíncrona.</li>
+                            <li><i class="fa-solid fa-arrow-right"></i> El código no se detiene mientras espera la respuesta: sigue, y nos avisa cuando la info llegó.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;">// Anatomía básica de un fetch</span>
+fetch(<span style="color: #032f62;">"https://jsonplaceholder.typicode.com/users"</span>)
+  .then(response =&gt; {
+    <span style="color: #6a737d;">// Acá llega la "bandeja" (el objeto Response)</span>
+    console.log(response)
+  })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 26</div>
+        </div>
+    </div>
+
+    
+    <!-- SLIDE 5: APIs Públicas de Ejemplo -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">APIs Públicas: Con Qué Vamos a Practicar Hoy</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">¿Qué es una API?</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Una API (Application Programming Interface) pública es un servidor que expone datos listos para consumir, a través de URLs documentadas llamadas "endpoints".
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-server"></i> No hace falta programar tu propio backend: alcanza con conocer la URL base y sus endpoints.</li>
+                            <li><i class="fa-solid fa-key"></i> Las APIs de práctica suelen ser gratuitas y no piden autenticación (API key) para hacer GET.</li>
+                            <li><i class="fa-solid fa-book"></i> Su documentación te dice qué endpoints existen y qué forma tiene el JSON que devuelven.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte); font-size: 12px;">
+<span style="color: #6a737d;">// PokéAPI: toda la data de los juegos Pokémon</span>
+fetch(<span style="color: #032f62;">"https://pokeapi.co/api/v2/pokemon/pikachu"</span>)
+
+<span style="color: #6a737d;">// Rick and Morty API: personajes, lugares y episodios</span>
+fetch(<span style="color: #032f62;">"https://rickandmortyapi.com/api/character/1"</span>)
+
+<span style="color: #6a737d;">// Las dos son públicas, gratuitas y sin autenticación:</span>
+<span style="color: #6a737d;">// ideales para practicar fetch() sin crear un backend propio.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 26</div>
+        </div>
+    </div>
+<!-- SLIDE 6: El objeto Response -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">El Objeto Response: La "Bandeja" de Entrada</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Antes de Leer los Datos</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Si imprimís ese response en consola, no vas a ver la lista de usuarios de inmediato: vas a ver un objeto "contenedor".
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-check"></i> <code>response.ok</code>: true/false. La forma más rápida de saber si la petición fue exitosa (200 a 299).</li>
+                            <li><i class="fa-solid fa-hashtag"></i> <code>response.status</code>: el código numérico (200 éxito, 404 no encontrado, 500 error del servidor).</li>
+                            <li><i class="fa-solid fa-list"></i> <code>response.headers</code>: información adicional, como el tipo de contenido recibido.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar); font-size: 12px;">
+fetch(<span style="color: #032f62;">"https://jsonplaceholder.typicode.com/users"</span>)
+  .then(response =&gt; console.log(response))
+
+<span style="color: #6a737d;">// Response { ok: true, status: 200, headers: ... }</span>
+<span style="color: #6a737d;">// El cuerpo de los datos todavía no está "servido"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Lectura de JSON con response.json() -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Leyendo JSON con response.json()</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Texto → Objeto</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        La mayoría de las APIs modernas envían la información en formato JSON: aunque se parece a un objeto de JS, en realidad es una cadena de texto larga con formato específico.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code"></i> Para poder usar <code>forEach</code>, <code>filter</code> o acceder a propiedades, hay que convertir ese texto con <code>.json()</code>.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> Punto crucial: <code>.json()</code> TAMBIÉN devuelve una Promesa. Hace falta un segundo <code>.then()</code> (o un segundo <code>await</code>).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Documento con código JSON en pantalla" src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Ejemplo con encadenamiento de promesas -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Ejemplo con Encadenamiento de Promesas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">.then().then()</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Encadenamos dos <code>.then()</code>: el primero convierte la Response en JSON, el segundo ya trabaja con los datos reales.
+                    </p>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia); font-size: 12px;">
+fetch(<span style="color: #032f62;">"https://jsonplaceholder.typicode.com/users"</span>)
+  .then(response =&gt; response.json())
+  <span style="color: #6a737d;">// Paso 1: convertir la Response a JSON</span>
+  .then(data =&gt; {
+    <span style="color: #6a737d;">// Paso 2: usar los datos</span>
+    console.log(data) <span style="color: #6a737d;">// acá sí, el array de usuarios</span>
+  })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: response.ok -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Verificación de Éxito con response.ok</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> #FindTheBug</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        ¿Qué pasa si escribís mal la URL o el servidor está caído? fetch() tiene un comportamiento particular.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-wifi"></i> fetch() solo se "rechaza" (va al <code>.catch</code>) si hay un error DE RED (te quedaste sin internet).</li>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Si el servidor responde 404, fetch() lo trata como una respuesta VÁLIDA: no dispara el error solo.</li>
+                            <li><i class="fa-solid fa-shield"></i> Por eso hay que verificar <code>response.ok</code> nosotros mismos, antes de procesar los datos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Señal de wifi débil o desconectada" src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: fetch + async/await -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">El Flujo Profesional: fetch() + Async/Await</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">La Sintaxis Recomendada</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Es la sintaxis más moderna y recomendada, por su legibilidad: se lee de forma secuencial, como el resto del código.
+                    </p>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte); font-size: 11px;">
+async function obtenerUsuarios() {
+  try {
+    const response = await fetch(<span style="color: #032f62;">"https://jsonplaceholder.typicode.com/users"</span>)
+
+    <span style="color: #6a737d;">// Verificamos si la respuesta fue exitosa</span>
+    if (!response.ok) {
+      throw new Error(`Error en la petición: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log(<span style="color: #032f62;">"Datos recibidos:"</span>, data)
+  } catch (error) {
+    console.error(<span style="color: #032f62;">"Hubo un problema:"</span>, error.message)
+  }
+}
+obtenerUsuarios()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Simulación desde JSON local -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Simulación desde un Archivo JSON Local</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Misma Lógica, Otra Fuente</h3>
+                    <p>Este proceso se puede replicar simulando una base de datos local: en vez de la URL de una API, le pasamos a <code>fetch()</code> la ruta de un archivo <code>.json</code> propio.</p>
+                </div>
+                <div>
+                    <h3>Ideal para Proyectos Personales</h3>
+                    <p>Es un método muy útil para armar proyectos sin tener que crear una API propia con datos simulados: <code>fetch("./data.json")</code> funciona igual que contra un servidor real.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Errores comunes en Fetch -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> #FindTheBug</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Olvidar el <code>await</code> en <code>response.json()</code> es, por lejos, el error más común de esta unidad.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> Sin el segundo await, "data" es una Promesa pendiente, no los datos.</li>
+                            <li><i class="fa-solid fa-code-compare"></i> El JSON que viaja por internet es puro texto: no podés ejecutar funciones ni usar <code>undefined</code> ahí adentro.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia); font-size: 12px;">
+<span style="color: #6a737d;">// ❌ Error: falta el await en response.json()</span>
+const response = await fetch(url)
+const data = response.json()
+<span style="color: #6f42c1;">// data es una Promesa pendiente, no los datos</span>
+
+<span style="color: #6a737d;">// ✅ Correcto</span>
+const data = await response.json()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide13">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">13 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: División Módulo 02 -->
+    <div class="slide-container" id="slide14">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Librerías Externas para Mejorar la UX</h2>
+            <p style="font-size: 20px;">Vas a reemplazar los cuadros nativos y aburridos del navegador por notificaciones elegantes y profesionales.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: ¿Qué es una librería externa? -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">¿Qué es una Librería Externa?</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Un Paquete de Soluciones</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Imaginá que estás construyendo una tienda online: el usuario hace clic en "Eliminar producto" del carrito.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-square-poll-horizontal"></i> Opción 1: <code>confirm()</code> nativo, ese cuadro gris que parece un error del sistema.</li>
+                            <li><i class="fa-solid fa-palette"></i> Opción 2: un cuadro elegante, con iconos, colores de marca y animaciones suaves.</li>
+                            <li><i class="fa-solid fa-box"></i> Una librería es código ya escrito por otros desarrolladores, listo para importar y resolver ese problema común.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Piezas de un rompecabezas encajando" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Ventajas de usar librerías -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Ventajas de Usar Librerías</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-clock"></i></div>
+                    <h3>Ahorro de Tiempo</h3>
+                    <p>Lo que te tomaría días programar (estética cross-browser, animaciones), lo resolvés en minutos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-swatchbook"></i></div>
+                    <h3>Consistencia</h3>
+                    <p>Ofrecés una experiencia visual uniforme, en vez de improvisar estilos distintos en cada pantalla.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-people-group"></i></div>
+                    <h3>Pruebas de la Comunidad</h3>
+                    <p>Las usan millones de personas: sus errores ya fueron detectados y corregidos por otros antes que vos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: CDN vs npm -->
+    <div class="slide-container" id="slide17">
+        <h2 class="slide-title">Cómo Integrar Librerías: CDN vs. npm</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>A. Vía CDN</h3>
+                    <p>Agregás una etiqueta <code>&lt;script&gt;</code> en tu HTML que apunta a un servidor donde vive el código de la librería. <strong>Pros:</strong> configuración instantánea. <strong>Contras:</strong> dependés de tener internet mientras desarrollás.</p>
+                </div>
+                <div>
+                    <h3>B. Vía npm</h3>
+                    <p>Usás la terminal para descargar el código a tu carpeta local: <code>npm install sweetalert2</code>. <strong>Pros:</strong> el código vive en tu proyecto, más seguro y profesional. <strong>Contras:</strong> requiere algo más de configuración inicial.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: SweetAlert2 -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">SweetAlert2: Transformando las Alertas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Adiós, alert()</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        <code>window.alert()</code> cumple su función, pero tiene un gran problema: detiene la ejecución de TODO el navegador.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> SweetAlert2 reemplaza esos mensajes con modales elegantes que no bloquean el hilo principal.</li>
+                            <li><i class="fa-solid fa-brush"></i> Totalmente personalizables: título, texto, ícono y color del botón.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar); font-size: 12px;">
+<span style="color: #6a737d;">// Swal es el objeto global que da la librería</span>
+Swal.fire({
+  title: <span style="color: #032f62;">'¡Éxito!'</span>,
+  text: <span style="color: #032f62;">'El usuario se ha registrado correctamente'</span>,
+  icon: <span style="color: #032f62;">'success'</span>,
+  confirmButtonText: <span style="color: #032f62;">'Genial'</span>
+})
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Promesas en SweetAlert2 -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">El Poder de las Promesas en SweetAlert2</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">.then(result =&gt; ...)</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Como vimos en la unidad de Asincronismo, SweetAlert2 usa Promesas: nos permite esperar a que el usuario tome una decisión.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-square-check"></i> <code>result.isConfirmed</code> es <code>true</code> solo si el usuario hizo clic en confirmar.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia); font-size: 11px;">
+Swal.fire({
+  title: <span style="color: #032f62;">'¿Estás seguro?'</span>,
+  text: <span style="color: #032f62;">"¡No podrás revertir esto!"</span>,
+  icon: <span style="color: #032f62;">'warning'</span>,
+  showCancelButton: true,
+  confirmButtonText: <span style="color: #032f62;">'Sí, borrar'</span>
+}).then((result) =&gt; {
+  if (result.isConfirmed) {
+    Swal.fire(<span style="color: #032f62;">'¡Borrado!'</span>, <span style="color: #032f62;">'Tu archivo fue eliminado.'</span>, <span style="color: #032f62;">'success'</span>)
+  }
+})
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Toastify -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Toastify: Notificaciones No Intrusivas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Una Nota Adhesiva</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        A veces no queremos interrumpir al usuario con un cuadro en medio de la pantalla: solo avisarle algo chico, que desaparece solo.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-note-sticky"></i> Un Toast aparece en una esquina, da la información, y se va solo después de unos segundos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte); font-size: 11px;">
+Toastify({
+  text: <span style="color: #032f62;">"Producto añadido al carrito"</span>,
+  duration: 3000,
+  close: true,
+  gravity: <span style="color: #032f62;">"top"</span>,
+  position: <span style="color: #032f62;">"right"</span>,
+  style: {
+    background: <span style="color: #032f62;">"linear-gradient(to right, #00b09b, #96c93d)"</span>
+  }
+}).showToast()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: SweetAlert2 vs Toastify -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">SweetAlert2 vs. Toastify: ¿Cuándo Usar Cada Una?</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>SweetAlert2: Decisiones Críticas</h3>
+                    <p>Usalo cuando necesitás que el usuario CONFIRME algo antes de seguir: borrar un registro, confirmar una compra, cerrar sesión.</p>
+                </div>
+                <div>
+                    <h3>Toastify: Confirmaciones Informativas</h3>
+                    <p>Usalo para avisos que no necesitan ninguna acción del usuario: "se guardó", "se agregó al carrito", "conexión perdida".</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Errores comunes con librerías -->
+    <div class="slide-container" id="slide22">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> La "Libreritis"</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Muchos desarrolladores se emocionan e instalan 20 librerías para un proyecto pequeño: la app carga muy lento.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-scale-balanced"></i> Regla de oro: antes de instalar, preguntate "¿puedo resolver esto con 5 líneas de JS puro?".</li>
+                            <li><i class="fa-solid fa-file-code"></i> Olvidar el CSS: si instalás la librería pero ves un texto feo, seguro olvidaste importar su <code>.css</code>.</li>
+                            <li><i class="fa-solid fa-book"></i> No leer la documentación: no intentes adivinar el nombre de una propiedad, andá a la página oficial.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Muchos cables enredados entre sí" src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Pre-Entrega 10 -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">Pre-Entrega 10</h2>
+        <div class="content-area">
+            <div class="slido-box">
+                <span class="moment-badge live"><i class="fa-solid fa-laptop-code"></i> Actividad Integradora</span>
+                <h3>APIs, Peticiones y Librerías</h3>
+                <p>Integrá fetch hacia una API y/o archivo JSON local, y sumá al menos una librería (SweetAlert2 o Toastify) para comunicarte con el usuario.</p>
+                <div class="slido-code" style="font-size: 17px; font-weight: 700; text-align: left; letter-spacing: normal;">
+                    ✓ Solicitar datos: al cargar la página, traer info desde la api y/o el JSON local<br>
+                    ✓ Feedback visual: mientras cargan los datos, o si algo falla, el usuario debe saberlo (async/await)<br>
+                    ✓ Integrar una librería (Toastify o SweetAlert2) en vez de los alerts nativos<br>
+                    ✓ Renderizar en el DOM: los datos recibidos deben verse como elementos HTML prolijos
+                </div>
+                <p style="font-weight: 600; color: var(--naranja-oscuro);">Sin API propia: sirven Fake Store API, JSONPlaceholder o PokeAPI. Entregable: repositorio de GitHub público con HTML y JS.</p>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Consolidación de Conceptos (Table) -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">Consolidación de Conceptos</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Módulo</th>
+                            <th>Tema Principal</th>
+                            <th>Herramienta o Técnica Clave</th>
+                            <th>Meta Pedagógica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Módulo 1</strong></td>
+                            <td>Fetch API</td>
+                            <td>fetch, response.ok, response.json(), async/await</td>
+                            <td>Conectar el JavaScript del navegador con un servidor real.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Módulo 2</strong></td>
+                            <td>Librerías Externas</td>
+                            <td>CDN vs npm, SweetAlert2, Toastify</td>
+                            <td>Reemplazar alert/confirm nativos por una UX profesional.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Evaluación</strong></td>
+                            <td>Pre-Entrega 10: APIs, Peticiones y Librerías</td>
+                            <td>Repositorio de GitHub público</td>
+                            <td>Integrar fetch y una librería externa en el simulador.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide25">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 26</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: Q&A / Legal Disclaimer -->
+    <div class="slide-container" id="slide26" style="background-color: var(--blanco-lienzo);">
+        <div class="content-area" style="justify-content: center;">
+            <h1 style="color: var(--naranja-oscuro); font-size: 60px; font-weight: 800; letter-spacing: -2px;">¡Muchas gracias!</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 5px;">Clase 10: Fetch API y Librerías Externas</p>
+
+            <p class="legal-notice">
+                La información contenida en este documento es altamente sensible y de carácter educativo para los participantes inscriptos en Coderhouse. Queda estrictamente prohibida la reproducción, duplicación o revelación total o parcial del contenido pedagógico sin previa autorización escrita de Coderhouse. Copyright © 2026 Coderhouse. Todos los derechos reservados.
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 26</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
