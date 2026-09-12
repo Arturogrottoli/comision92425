@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clase 11: Node.js, Frameworks Modernos y Proyecto Final - Coderhouse</title>
+    <!-- Coder 4.0 Core Typography: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ==========================================================================
+           CODER 4.0 DESIGN SYSTEM & VARS
+           ========================================================================== */
+        :root {
+            --blanco-lienzo: #F8F2E8;
+            --negro-coder: #171717;
+            --naranja-oscuro: #260700;
+            --naranja-horizonte: #FF632B;
+            --amarillo-solar: #FE872D;
+            --rosa-energia: #FE64A3;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #dcd6cd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: var(--font-main);
+            overflow: hidden;
+        }
+
+        /* Slide Viewer (Absolute 1280x720 No-Scale-Shift) */
+        .presentation-viewport {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--blanco-lienzo);
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            color: var(--negro-coder);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 70px 40px 70px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            z-index: 1;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Abstract Brand Accents: Subtly warm gradients connecting to Coder 4.0 */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: -150px;
+            right: -150px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255,99,43,0.06) 0%, rgba(248,242,232,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .slide-container > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography & Hierarchy */
+        h1 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+        }
+
+        .slide-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.2;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background-color: rgba(38, 7, 0, 0.1);
+            margin-left: 15px;
+        }
+
+        p, li {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #3d3430;
+            font-weight: 400;
+        }
+
+        /* Content Area Layout Wrapper */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Grid & Column Definitions */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 45px;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Coder 4.0 Split Card layouts */
+        .two-column.tiled > div {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            padding: 35px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .two-column.tiled h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--naranja-horizonte);
+            margin-bottom: 12px;
+        }
+
+        /* Warm Retro Photography Frame */
+        .image-wrapper {
+            border-radius: 16px;
+            height: 340px;
+            overflow: hidden;
+            width: 100%;
+            border: 4px solid #ffffff;
+            box-shadow: 0 10px 25px rgba(38, 7, 0, 0.08);
+        }
+
+        .image-wrapper img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        /* Custom 2D Filled Icons & Tiles */
+        .tiled-content {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .tile {
+            background-color: #ffffff;
+            border-radius: 16px;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+        }
+
+        .tile .icon-box {
+            background-color: rgba(255, 99, 43, 0.1);
+            color: var(--naranja-horizonte);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .tile h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--naranja-oscuro);
+            margin-bottom: 8px;
+        }
+
+        .tile p {
+            font-size: 14px;
+        }
+
+        /* Bullet List styling */
+        .bullet-list ul {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .bullet-list li i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            color: var(--naranja-horizonte);
+            font-size: 16px;
+        }
+
+        /* Footer & Brand Branding Mark */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(38, 7, 0, 0.06);
+            padding-top: 15px;
+            width: 100%;
+        }
+
+        .slide-footer .brand-logo {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--naranja-oscuro);
+            letter-spacing: -0.5px;
+        }
+
+        .slide-footer .brand-logo span {
+            color: var(--naranja-horizonte);
+        }
+
+        .slide-footer .slide-index {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(38, 7, 0, 0.4);
+        }
+
+        /* Slide Type Banners ("Momentos de la Clase") */
+        .moment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+        }
+
+        .moment-badge.live {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .moment-badge.bug {
+            background-color: var(--rosa-energia);
+        }
+
+        .moment-badge.tip {
+            background-color: var(--amarillo-solar);
+            color: var(--naranja-oscuro);
+        }
+
+        /* Slido Interactive layout */
+        .slido-box {
+            background-color: #ffffff;
+            border: 2px dashed var(--naranja-horizonte);
+            border-radius: 20px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 99, 43, 0.05);
+        }
+
+        .slido-box h3 {
+            font-size: 26px;
+            color: var(--naranja-oscuro);
+            margin-bottom: 10px;
+        }
+
+        .slido-code {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--naranja-horizonte);
+            margin: 15px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Transition slide */
+        .transition-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .transition-layout h2 {
+            font-size: 60px;
+            font-weight: 800;
+            color: var(--naranja-oscuro);
+            line-height: 1.1;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+        }
+
+        .transition-layout hr {
+            width: 80px;
+            height: 5px;
+            background-color: var(--naranja-horizonte);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        /* Clean retro table */
+        .table-layout {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(38, 7, 0, 0.08);
+            box-shadow: 0 4px 15px rgba(38, 7, 0, 0.02);
+            width: 100%;
+        }
+
+        .table-layout table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-layout th, .table-layout td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(38, 7, 0, 0.06);
+            font-size: 14px;
+        }
+
+        .table-layout th {
+            background-color: rgba(38, 7, 0, 0.03);
+            color: var(--naranja-oscuro);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .table-layout tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Break Slide Design */
+        .break-slide {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+        }
+
+        .break-slide::before {
+            display: none;
+        }
+
+        .break-slide h2 {
+            font-size: 54px;
+            font-weight: 800;
+            color: var(--blanco-lienzo);
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .break-slide p {
+            color: rgba(248, 242, 232, 0.75);
+            font-size: 22px;
+        }
+
+        .break-logo {
+            font-size: 80px;
+            color: var(--naranja-horizonte);
+            margin-bottom: 30px;
+        }
+
+        /* Q&A / Legal section */
+        .legal-notice {
+            font-size: 10px;
+            line-height: 1.4;
+            color: rgba(38, 7, 0, 0.4);
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        /* Presentation controls toolbar */
+        .controls-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background-color: var(--naranja-oscuro);
+            color: var(--blanco-lienzo);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--naranja-horizonte);
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(38, 7, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: var(--naranja-horizonte);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Code Block Container */
+        .code-block {
+            background-color: #ffffff;
+            border-left: 4px solid var(--naranja-horizonte);
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-viewport">
+
+    <!-- SLIDE 1: Portada General -->
+    <div class="slide-container active" id="slide1">
+        <div></div>
+        <div class="transition-layout" style="margin-bottom: 30px;">
+            <span class="moment-badge">CODER 4.0 • CLASE FINAL</span>
+            <h1 style="font-size: 44px;">Node.js, Frameworks Modernos y Cierre del Curso</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Clase 11: JavaScript fuera del navegador | React, Vue y Angular | Proyecto Final
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">01 / 44</div>
+        </div>
+    </div>
+
+    
+    <!-- SLIDE 2: Repaso General - Introducción -->
+    <div class="slide-container" id="slide2">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Antes de Seguir</span>
+            <h2>Repaso General: Clases 1 a 10</h2>
+            <p style="font-size: 20px;">Un repaso rápido, clase por clase, de todo lo que ya sabés hacer con JavaScript antes de sumar Node.js y los frameworks modernos.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">02 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Repaso Clase 01 -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Repaso Clase 01: Variables y Tipos de Datos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-box-archive"></i></div>
+                    <h3>let y const</h3>
+                    <p>Las formas modernas de declarar variables: const para valores que no se reasignan, let para los que sí cambian con el tiempo.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-shapes"></i></div>
+                    <h3>Tipos de Datos Primitivos</h3>
+                    <p>string, number, boolean, undefined y null: los bloques básicos con los que se construye cualquier programa.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-brands fa-git-alt"></i></div>
+                    <h3>Arrays, Objetos y Git</h3>
+                    <p>Las primeras estructuras para agrupar datos, más los primeros pasos versionando el código con Git y GitHub.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">03 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Repaso Clase 02 -->
+    <div class="slide-container" id="slide4">
+        <h2 class="slide-title">Repaso Clase 02: Condicionales, Ciclos y ??</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-code-branch"></i></div>
+                    <h3>if / else if / else</h3>
+                    <p>Tomar decisiones en el código según se cumpla o no una condición, incluso anidando varias condiciones.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrows-spin"></i></div>
+                    <h3>for y while</h3>
+                    <p>Repetir una acción varias veces sin copiar y pegar código, recorriendo un rango o hasta que se cumpla una condición.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-question"></i></div>
+                    <h3>Nullish Coalescing (??)</h3>
+                    <p>Da un valor por defecto solo si el original es null o undefined (a diferencia de ||, que reacciona ante cualquier falsy).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">04 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Repaso Clase 03 -->
+    <div class="slide-container" id="slide5">
+        <h2 class="slide-title">Repaso Clase 03: Funciones y Scope</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-code"></i></div>
+                    <h3>Declaración vs. Expresión</h3>
+                    <p><code>function saludar(){}</code> tiene hoisting; <code>const saludar = () => {}</code> no. Ambas formas de escribir funciones tienen sus usos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-right-left"></i></div>
+                    <h3>Parámetros y Retorno</h3>
+                    <p>Los parámetros son el "input" de una función; return es su "output". Sin return, una función devuelve undefined.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Scope: Global, Local y de Bloque</h3>
+                    <p>Dónde "vive" cada variable, y por qué un let/const dentro de un { } no se puede ver desde afuera (a diferencia de var).</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">05 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Repaso Clase 04 -->
+    <div class="slide-container" id="slide6">
+        <h2 class="slide-title">Repaso Clase 04: Arrays y Objetos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-list-ol"></i></div>
+                    <h3>Arrays</h3>
+                    <p>Estructuras ordenadas por índices (empiezan en 0), con una propiedad length, recorribles con un for tradicional.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-tag"></i></div>
+                    <h3>Objetos Literales</h3>
+                    <p>Agrupan datos relacionados en pares clave-valor, accesibles con notación de punto o de corchetes.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-table-list"></i></div>
+                    <h3>Arrays de Objetos</h3>
+                    <p>La combinación de ambos: la estructura que vas a usar en prácticamente todos tus proyectos de acá en adelante.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">06 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Repaso Clase 05 -->
+    <div class="slide-container" id="slide7">
+        <h2 class="slide-title">Repaso Clase 05: Constructores y Clases</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-pen"></i></div>
+                    <h3>Manipular Objetos Literales</h3>
+                    <p>Agregar, modificar o eliminar propiedades de un objeto de forma dinámica, después de haberlo creado.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-stamp"></i></div>
+                    <h3>Constructores y new</h3>
+                    <p>Un "molde" reutilizable para crear muchos objetos con la misma forma, activado con el operador new.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-cube"></i></div>
+                    <h3>Clases ES6</h3>
+                    <p>La forma moderna de escribir constructores: constructor() y métodos, dentro de una sintaxis class más prolija.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">07 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Repaso Clase 06 -->
+    <div class="slide-container" id="slide8">
+        <h2 class="slide-title">Repaso Clase 06: Funciones de Orden Superior</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Buscar y Filtrar</h3>
+                    <p><code>forEach</code> para recorrer, <code>find</code> para el primer elemento que cumple una condición, <code>filter</code> para quedarte con todos los que la cumplen, <code>some</code> para saber si existe al menos uno.</p>
+                </div>
+                <div>
+                    <h3>Transformar y Combinar</h3>
+                    <p><code>map</code> transforma cada elemento en algo nuevo (mismo tamaño de array); <code>reduce</code> combina todos los elementos en un único valor. Ambos devuelven un array/valor NUEVO, sin mutar el original.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">08 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Repaso Clase 07 (1/2) -->
+    <div class="slide-container" id="slide9">
+        <h2 class="slide-title">Repaso Clase 07 (1/2): Selectores y Contenido</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h3>Selectores</h3>
+                    <p><code>getElementById</code> para un id único; <code>querySelector</code>/<code>querySelectorAll</code> para cualquier selector CSS, uno o varios elementos.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-font"></i></div>
+                    <h3>textContent vs. innerHTML</h3>
+                    <p>textContent cambia solo texto plano (seguro); innerHTML interpreta HTML real (más potente, más riesgoso).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-plus"></i></div>
+                    <h3>createElement + appendChild</h3>
+                    <p>Crear un elemento nuevo no alcanza: hay que agregarlo al árbol del DOM con appendChild para que se vea en pantalla.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">09 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Repaso Clase 07 (2/2) -->
+    <div class="slide-container" id="slide10">
+        <h2 class="slide-title">Repaso Clase 07 (2/2): Eventos</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
+                    <h3>addEventListener</h3>
+                    <p>La forma moderna de reaccionar a un clic, una tecla o el envío de un formulario: elemento.addEventListener('evento', función).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-envelope-open-text"></i></div>
+                    <h3>El Objeto Event</h3>
+                    <p>event.target (qué elemento disparó el evento) y event.key (qué tecla se presionó): el "regalo" que trae cada evento.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-trash"></i></div>
+                    <h3>remove()</h3>
+                    <p>Eliminar un elemento del DOM directamente, sin necesidad de acceder primero a su elemento padre.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">10 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Repaso Clase 08 (1/2) -->
+    <div class="slide-container" id="slide11">
+        <h2 class="slide-title">Repaso Clase 08 (1/2): Web Storage</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>localStorage y sessionStorage</h3>
+                    <p><code>setItem</code>/<code>getItem</code>/<code>removeItem</code>/<code>clear</code>. localStorage persiste a largo plazo; sessionStorage solo dura mientras la pestaña esté abierta.</p>
+                </div>
+                <div>
+                    <h3>JSON.stringify() / JSON.parse()</h3>
+                    <p>El storage solo guarda strings: para guardar un objeto o array completo hay que serializarlo a texto, y luego reconstruirlo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">11 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Repaso Clase 08 (2/2) -->
+    <div class="slide-container" id="slide12">
+        <h2 class="slide-title">Repaso Clase 08 (2/2): Operadores y Destructuring</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-code-compare"></i></div>
+                    <h3>Ternario, && y ||</h3>
+                    <p>Simplifican un if-else en una línea, y permiten dar valores por defecto cuando algo todavía no existe.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-ellipsis"></i></div>
+                    <h3>Spread y Rest (...)</h3>
+                    <p>Spread "desparrama" un array/objeto; Rest agrupa una cantidad indeterminada de parámetros en un array.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-box-open"></i></div>
+                    <h3>Destructuring</h3>
+                    <p>Extraer propiedades de objetos o elementos de arrays en variables individuales, con alias incluido.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">12 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Repaso Clase 09 (1/2) -->
+    <div class="slide-container" id="slide13">
+        <h2 class="slide-title">Repaso Clase 09 (1/2): Event Loop</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3>Call Stack</h3>
+                    <p>La pila LIFO donde se apilan las funciones en ejecución: la última en entrar es la primera en salir.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-ban"></i></div>
+                    <h3>Bloqueante vs. No Bloqueante</h3>
+                    <p>Una tarea pesada en el hilo principal congela la página; una tarea asíncrona delega la espera y sigue con lo demás.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-arrows-rotate"></i></div>
+                    <h3>Event Loop y Task Queue</h3>
+                    <p>Por qué un setTimeout(fn, 0) siempre sale último: el Event Loop espera a que el Call Stack esté vacío.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">13 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Repaso Clase 09 (2/2) -->
+    <div class="slide-container" id="slide14">
+        <h2 class="slide-title">Repaso Clase 09 (2/2): Promesas y Async/Await</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-fire"></i></div>
+                    <h3>Callbacks y Callback Hell</h3>
+                    <p>La forma más antigua de manejar asincronismo: funciones dentro de funciones que se vuelven difíciles de leer.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-receipt"></i></div>
+                    <h3>Promise: pending / fulfilled / rejected</h3>
+                    <p>Un objeto con un valor a futuro, que se "escucha" con .then() (éxito) y .catch() (error).</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h3>async/await + try/catch/finally</h3>
+                    <p>La forma moderna y legible de trabajar con promesas: código asíncrono que se lee como si fuera secuencial.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">14 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Repaso Clase 10 (1/2) -->
+    <div class="slide-container" id="slide15">
+        <h2 class="slide-title">Repaso Clase 10 (1/2): Fetch API</h2>
+        <div class="content-area">
+            <div class="tiled-content">
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-globe"></i></div>
+                    <h3>fetch()</h3>
+                    <p>Pide información a una URL externa de forma asíncrona, devolviendo una Promesa.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-box"></i></div>
+                    <h3>Response: ok, status, json()</h3>
+                    <p>response.ok/status dicen si salió bien ANTES de leer los datos; response.json() convierte el texto en un objeto real.</p>
+                </div>
+                <div class="tile">
+                    <div class="icon-box"><i class="fa-solid fa-check-double"></i></div>
+                    <h3>fetch + async/await</h3>
+                    <p>El flujo profesional: await fetch(), verificar response.ok, y try/catch/finally para los errores.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">15 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Repaso Clase 10 (2/2) -->
+    <div class="slide-container" id="slide16">
+        <h2 class="slide-title">Repaso Clase 10 (2/2): Librerías Externas</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>SweetAlert2</h3>
+                    <p>Modales elegantes que reemplazan alert()/confirm(), sin bloquear el hilo principal, y con soporte de Promesas para esperar la decisión del usuario.</p>
+                </div>
+                <div>
+                    <h3>Toastify</h3>
+                    <p>Notificaciones no intrusivas ("toasts") para avisos que no necesitan ninguna acción del usuario, como "se guardó" o "se agregó al carrito".</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">16 / 44</div>
+        </div>
+    </div>
+<!-- SLIDE 17: División Módulo 01 -->
+    <div class="slide-container" id="slide17">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 01</span>
+            <h2>Node.js: JavaScript Fuera del Navegador</h2>
+            <p style="font-size: 20px;">Vas a descubrir cómo el mismo lenguaje que usaste para interactuar con el DOM puede correr en tu computadora, crear servidores y automatizar tareas.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">17 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: ¿Qué es Node.js? -->
+    <div class="slide-container" id="slide18">
+        <h2 class="slide-title">Node.js: JavaScript sin Navegador</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">El Motor Debajo del Capó</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Node.js utiliza el motor V8, el mismo componente ultrarrápido que usa Google Chrome para procesar JavaScript, sacado del navegador.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-clock-rotate-left"></i> Antes de 2009, programar el servidor de una web requería otros lenguajes: PHP, Java o Ruby.</li>
+                            <li><i class="fa-solid fa-code"></i> Node.js permitió usar un solo lenguaje (JavaScript) para todo el proyecto: frontend y backend.</li>
+                            <li><i class="fa-solid fa-microchip"></i> Le añade "superpoderes" para interactuar directamente con el sistema operativo de tu computadora.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="image-wrapper">
+                        <img alt="Servidor y líneas de código" src="https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1280&auto=format&fit=crop">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">18 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Navegador vs Node.js -->
+    <div class="slide-container" id="slide19">
+        <h2 class="slide-title">Diferencia Clave entre Entornos</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>En el Navegador</h3>
+                    <p>Tenés acceso al objeto <code>window</code> y <code>document</code>. Podés cambiar el color de un botón o detectar un scroll. No podés leer archivos del disco duro del usuario, por seguridad.</p>
+                </div>
+                <div>
+                    <h3>En Node.js</h3>
+                    <p>No existe el DOM ni el <code>document</code>, porque no hay una "página" que mostrar. En su lugar, tenés acceso al sistema de archivos (<code>fs</code>), a la red y a procesos de la computadora.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">19 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Casos de uso -->
+    <div class="slide-container" id="slide20">
+        <h2 class="slide-title">Casos de Uso de Node.js</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Servidores Web (Backend)</h3>
+                    <p>Es el uso más famoso. Node.js es excelente para aplicaciones que necesitan manejar muchas conexiones al mismo tiempo, como un chat en tiempo real o una red social. Netflix lo usa para gran parte de su backend.</p>
+                </div>
+                <div>
+                    <h3>Scripts de Automatización</h3>
+                    <p>Imaginá que tenés 1.000 imágenes que necesitás renombrar o cambiar de tamaño. En vez de hacerlo a mano, escribís un pequeño script de JavaScript y lo ejecutás con Node.js para que haga el trabajo pesado en segundos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">20 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Errores comunes Node -->
+    <div class="slide-container" id="slide21">
+        <h2 class="slide-title">Errores Comunes y Mejores Prácticas</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-bug"></i> La "Caja Negra"</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Nunca toques la carpeta <code>node_modules</code> directamente: es generada automáticamente por npm y tus cambios desaparecerán.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-circle-exclamation"></i> "Estoy aprendiendo Node" es un error común: Node no es un lenguaje nuevo, es JavaScript con otras APIs disponibles.</li>
+                            <li><i class="fa-solid fa-id-card"></i> <code>package.json</code> es el "documento de identidad" de tu proyecto: leelo siempre, ahí ves librerías y comandos disponibles.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;">// NUNCA edites archivos dentro de esta carpeta</span>
+node_modules/
+
+<span style="color: #6a737d;">// Este es tu mapa: leelo siempre</span>
+package.json
+  <span style="color: #6a737d;">// dependencias y scripts del proyecto</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">21 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: División Módulo 02 -->
+    <div class="slide-container" id="slide22">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 02</span>
+            <h2>Frameworks Modernos: React, Vue y Angular</h2>
+            <p style="font-size: 20px;">Con el DOM, los eventos y el fetch ya dominados, es hora de ver cómo la industria escala esas mismas ideas para aplicaciones grandes.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">22 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: El problema de escalar con JS manual -->
+    <div class="slide-container" id="slide23">
+        <h2 class="slide-title">El Problema de Escalar con JS Manual</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Enfoque Imperativo</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Con <code>document.querySelector</code> y manipulación manual, le das al navegador instrucciones paso a paso de cómo cambiar la interfaz.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-arrows-rotate"></i> Sincronización: si un dato aparece en dos lugares, hay que acordarse de actualizar ambos manualmente.</li>
+                            <li><i class="fa-solid fa-magnifying-glass"></i> Complejidad: rastrear qué código cambió qué parte del HTML es una tarea detectivesca.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> Fragilidad: cambiar una clase en el HTML puede romper los selectores de JS silenciosamente.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar); font-size: 12px;">
+<span style="color: #6a737d;">// Agregar una tarea a mano, paso a paso</span>
+const li = document.createElement(<span style="color: #032f62;">'li'</span>)
+li.textContent = input.value
+
+lista.appendChild(li)
+
+<span style="color: #6a737d;">// Los frameworks proponen otro camino:</span>
+<span style="color: #6a737d;">// enfoque Declarativo → decís QUÉ ver,</span>
+<span style="color: #6a737d;">// según los datos que tenés</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">23 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Componentes -->
+    <div class="slide-container" id="slide24">
+        <h2 class="slide-title">Componentes: La Unidad Reutilizable</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Como Piezas de LEGO</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        En vez de un único documento HTML gigante, la interfaz se arma con piezas independientes y reutilizables: los componentes.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-cube"></i> Un componente encapsula Estructura (HTML), Lógica (JS) y Estilo (CSS) a la vez.</li>
+                            <li><i class="fa-solid fa-bolt"></i> Cambiás el componente una sola vez, y se actualiza automáticamente donde sea que se use.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: auto;">
+                        <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
+                        <h3>Ejemplo: Tarjeta de Producto</h3>
+                        <p>Imagen, título, precio y botón "Comprar". En Vanilla JS copiás y pegás ese HTML muchas veces. En un framework, lo definís una vez y lo invocás pasando distintos datos: nombre, precio, foto.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">24 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Estado y Reactividad -->
+    <div class="slide-container" id="slide25">
+        <h2 class="slide-title">Estado y Reactividad: El Motor de la Interfaz</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Interfaz = Framework(Estado)</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        El Estado son los datos que definen lo que se ve en pantalla: ¿está el modal abierto? ¿qué hay en el carrito?
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-rotate"></i> Cuando el Estado cambia, el framework detecta ese cambio y actualiza la interfaz automáticamente.</li>
+                            <li><i class="fa-solid fa-hand"></i> Ya no tocás el DOM directamente: solo actualizás los datos, y el framework hace el trabajo sucio.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte);">
+<span style="color: #6a737d;">// Vanilla JS: hay que tocar el DOM a mano</span>
+contador++
+document.querySelector(<span style="color: #032f62;">'#num'</span>).innerText = contador
+
+<span style="color: #6a737d;">// Framework: solo actualizás el estado</span>
+<span style="color: #6a737d;">// y la interfaz se refresca sola</span>
+setContador(contador + 1)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">25 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 26: React -->
+    <div class="slide-container" id="slide26">
+        <h2 class="slide-title">React: La Biblioteca Flexible</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Meta (Facebook)</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Oficialmente se define como una "biblioteca" y no un framework, porque solo se encarga de la vista (los componentes).
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-brands fa-react"></i> Filosofía "Todo es JavaScript": usa JSX, una sintaxis parecida a HTML dentro de funciones de JS.</li>
+                            <li><i class="fa-solid fa-boxes-stacked"></i> Punto fuerte: ecosistema gigantesco, con librerías para casi cualquier necesidad.</li>
+                            <li><i class="fa-solid fa-sliders"></i> Ideal para: proyectos donde querés elegir tus propias herramientas y la flexibilidad es clave.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: auto; align-items: center; text-align: center;">
+                        <i class="fa-brands fa-react" style="font-size: 90px; color: var(--naranja-horizonte); margin: 0 auto 15px;"></i>
+                        <h3 style="text-align: center;">La tecnología más popular actualmente</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">26 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 27: Vue -->
+    <div class="slide-container" id="slide27">
+        <h2 class="slide-title">Vue: El Framework Progresivo</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Evan You</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Nació con el objetivo de tomar lo mejor de Angular y React para hacerlo más sencillo. Curva de aprendizaje muy suave.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-brands fa-vuejs"></i> Filosofía: separación de preocupaciones. Un componente tiene tres secciones claras: <code>&lt;template&gt;</code>, <code>&lt;script&gt;</code> y <code>&lt;style&gt;</code>.</li>
+                            <li><i class="fa-solid fa-book-open"></i> Punto fuerte: documentación excelente y facilidad para integrarse gradualmente en proyectos existentes.</li>
+                            <li><i class="fa-solid fa-people-group"></i> Ideal para: equipos que quieren empezar rápido sin sacrificar potencia.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: auto; align-items: center; text-align: center;">
+                        <i class="fa-brands fa-vuejs" style="font-size: 90px; color: var(--naranja-horizonte); margin: 0 auto 15px;"></i>
+                        <h3 style="text-align: center;">Lo mejor de dos mundos, con simplicidad</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">27 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 28: Angular -->
+    <div class="slide-container" id="slide28">
+        <h2 class="slide-title">Angular: El Framework Robusto</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Google</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Es un framework "con todo incluido": da todas las herramientas para routing, formularios y peticiones HTTP desde el primer segundo.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-brands fa-angular"></i> Filosofía: estructura y escalabilidad profesional. Usa TypeScript obligatoriamente.</li>
+                            <li><i class="fa-solid fa-check-double"></i> Punto fuerte: consistencia. Un proyecto de Angular siempre tiene una estructura muy similar.</li>
+                            <li><i class="fa-solid fa-building-columns"></i> Ideal para: aplicaciones empresariales de gran escala, donde la estabilidad es clave.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: auto; align-items: center; text-align: center;">
+                        <i class="fa-brands fa-angular" style="font-size: 90px; color: var(--naranja-horizonte); margin: 0 auto 15px;"></i>
+                        <h3 style="text-align: center;">Reglas estrictas para equipos grandes</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">28 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 29: ¿Cuándo usar un framework? -->
+    <div class="slide-container" id="slide29">
+        <h2 class="slide-title">¿Cuándo Usar un Framework?</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Usá un Framework si...</h3>
+                    <p>Tu aplicación tiene muchos datos que cambian constantemente (dashboards, redes sociales), necesitás reutilizar muchas partes de la interfaz, el equipo va a crecer, o querés una SPA con navegación instantánea.</p>
+                </div>
+                <div>
+                    <h3>Usá Vanilla JS si...</h3>
+                    <p>Es una página estática (blog simple, landing page), necesitás un rendimiento extremo donde cada kilobyte importa, o es un script pequeño para una funcionalidad específica. No caigas en la sobreingeniería.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">29 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: Break de Coder ("Recreo") -->
+    <div class="slide-container break-slide" id="slide30">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div class="break-logo"><i class="fa-solid fa-mug-hot"></i></div>
+            <h2>Break del Coder</h2>
+            <p>Andá por un cafecito o mate, ¡y en 10 minutos volvemos con el Proyecto Final!</p>
+        </div>
+        <div class="slide-footer" style="border-top: 1px solid rgba(248, 242, 232, 0.2);">
+            <div class="brand-logo" style="color: var(--blanco-lienzo);">CODER<span style="color: var(--naranja-horizonte);">HOUSE</span></div>
+            <div class="slide-index" style="color: rgba(248, 242, 232, 0.4);">30 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: División Módulo 03 -->
+    <div class="slide-container" id="slide31">
+        <div></div>
+        <div class="transition-layout">
+            <hr>
+            <span class="moment-badge">Módulo 03</span>
+            <h2>Proyecto Final: Aplicación Web Interactiva</h2>
+            <p style="font-size: 20px;">El cierre del curso: integrar todo lo que aprendiste en un simulador completo, de punta a punta.</p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">31 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 32: Objetivo del Proyecto Final -->
+    <div class="slide-container" id="slide32">
+        <h2 class="slide-title">Objetivo del Proyecto Final</h2>
+        <div class="content-area">
+            <div class="slido-box">
+                <span class="moment-badge live"><i class="fa-solid fa-flag-checkered"></i> Entrega Final</span>
+                <h3>Simulador de Proceso Comercial o Profesional</h3>
+                <p>Desarrollá un simulador completo (compra, reserva, cotización, gestión, etc.) que integre todas las herramientas de JavaScript vistas en el curso.</p>
+                <div class="slido-code" style="font-size: 18px; font-weight: 700; text-align: left; letter-spacing: normal;">
+                    ✓ DOM e interacción, sin prompt/alert/confirm nativos<br>
+                    ✓ Arrays de objetos en .json, consumidos con fetch<br>
+                    ✓ Storage con guardar, modificar, borrar y vaciar<br>
+                    ✓ Asincronismo con async/await, try/catch y finally<br>
+                    ✓ Al menos una librería externa (SweetAlert, Toastify)
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">32 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 33: Requisitos - Estructura de archivos -->
+    <div class="slide-container" id="slide33">
+        <h2 class="slide-title">Requisitos: Estructura de Archivos</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">El Esqueleto del Proyecto</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Un proyecto prolijo empieza por una estructura de carpetas clara y ordenada.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-file-code"></i> <code>index.html</code> en la raíz, como único archivo suelto: el resto va en carpetas organizadas.</li>
+                            <li><i class="fa-solid fa-folder-open"></i> Carpeta <code>assets/</code> con recursos multimedia.</li>
+                            <li><i class="fa-solid fa-database"></i> Al menos un archivo <code>.json</code> usado como base de datos simulada.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+mi-proyecto/
+├── index.html
+├── assets/
+│   └── img/
+├── js/
+│   ├── app.js
+│   └── ui.js
+├── data/
+│   └── productos.json
+└── styles.css
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">33 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 34: Requisitos - DOM e interacción -->
+    <div class="slide-container" id="slide34">
+        <h2 class="slide-title">Requisitos: DOM e Interacción</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge bug"><i class="fa-solid fa-ban"></i> Prohibido</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Toda interacción con el usuario debe ser a través de la interfaz, nunca con cuadros de diálogo nativos.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-xmark"></i> Nada de <code>prompt</code>, <code>alert</code> ni <code>confirm</code> en ninguna parte del código.</li>
+                            <li><i class="fa-solid fa-check"></i> Manipulación dinámica del DOM en respuesta a las acciones del usuario.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia);">
+<span style="color: #6a737d;">// MAL: cuadros de diálogo nativos</span>
+const nombre = prompt(<span style="color: #032f62;">"¿Tu nombre?"</span>)
+alert(<span style="color: #032f62;">"Producto agregado"</span>)
+
+<span style="color: #6a737d;">// BIEN: interfaz propia + librería externa</span>
+Toastify({ text: <span style="color: #032f62;">"Producto agregado"</span> }).showToast()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">34 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 35: Requisitos - Arrays, JSON y funciones de orden superior -->
+    <div class="slide-container" id="slide35">
+        <h2 class="slide-title">Requisitos: Arrays, JSON y Funciones de Orden Superior</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Datos Reales, no Hardcodeados</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        Ningún array de objetos vive directamente en el .js: todos deben estar en un .json y consumirse con fetch.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-code-compare"></i> Se usan al menos 2 funciones de orden superior distintas: <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code>, <code>some</code>, <code>forEach</code>.</li>
+                            <li><i class="fa-solid fa-magnifying-glass-chart"></i> Se usan para buscar, filtrar, transformar o calcular datos del simulador.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--naranja-horizonte); font-size: 12px;">
+const productos = <span style="color: #6a737d;">/* desde productos.json */</span>
+
+const disponibles = productos.filter(p =&gt; p.stock &gt; 0)
+
+const total = carrito.reduce(
+  (acc, item) =&gt; acc + item.precio, 0
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">35 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 36: Requisitos - Storage y operadores avanzados -->
+    <div class="slide-container" id="slide36">
+        <h2 class="slide-title">Requisitos: Storage y Operadores Avanzados</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Persistencia y Sintaxis Moderna</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        El proyecto debe implementar localStorage o sessionStorage con las cuatro operaciones básicas.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-floppy-disk"></i> Guardar, modificar, borrar y vaciar el storage, para una experiencia de usuario correcta.</li>
+                            <li><i class="fa-solid fa-wand-magic-sparkles"></i> Código con al menos: operador ternario, operador OR (<code>||</code>) y destructuring.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--amarillo-solar);">
+const carrito = JSON.parse(localStorage.getItem(<span style="color: #032f62;">'carrito'</span>)) || []
+
+const { nombre, precio } = producto
+
+carrito.length === 0
+  ? mostrarMensajeVacio()
+  : renderizarCarrito(carrito)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">36 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 37: Requisitos - Asincronismo -->
+    <div class="slide-container" id="slide37">
+        <h2 class="slide-title">Requisitos: Asincronismo</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">fetch + async/await</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        El proyecto debe consumir la api/json local con la sintaxis moderna y un manejo de errores correcto.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-shield"></i> <code>try/catch/finally</code> cuando aplique.</li>
+                            <li><i class="fa-solid fa-triangle-exclamation"></i> La app debe manejar errores de carga de datos, no romperse en silencio.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="code-block" style="border-left-color: var(--rosa-energia); font-size: 12px;">
+async function obtenerProductos() {
+  try {
+    const response = await fetch(<span style="color: #032f62;">'data/productos.json'</span>)
+    if (!response.ok) throw new Error(<span style="color: #032f62;">'Error al cargar'</span>)
+    const productos = await response.json()
+    renderizarProductos(productos)
+  } catch (error) {
+    mostrarError(error.message)
+  } finally {
+    ocultarSpinner()
+  }
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">37 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 38: Requisitos - Librería externa -->
+    <div class="slide-container" id="slide38">
+        <h2 class="slide-title">Requisitos: Librería Externa</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Reemplazá lo Nativo</h3>
+                    <p>Debés incluir al menos una librería JS externa (SweetAlert2, Toastify u otra) y eliminar el uso de <code>prompt</code>, <code>alert</code> y <code>confirm</code> del navegador.</p>
+                </div>
+                <div>
+                    <h3>Mejor Experiencia de Usuario</h3>
+                    <p>En vez de un cuadro gris nativo, mostrás un diálogo elegante con íconos, colores de tu marca y animaciones suaves. Así como no fabricás tus propios ladrillos, usás librerías para resolver problemas comunes.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">38 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 39: Requisitos - Lógica del simulador -->
+    <div class="slide-container" id="slide39">
+        <h2 class="slide-title">Requisitos: Lógica del Simulador</h2>
+        <div class="content-area">
+            <div class="two-column">
+                <div>
+                    <span class="moment-badge">Circuito Completo, de Punta a Punta</span>
+                    <p style="margin-bottom: 15px; font-weight: 600; font-size: 19px; color: var(--naranja-oscuro);">
+                        El circuito principal debe estar completo: no alcanza con una parte del flujo.
+                    </p>
+                    <div class="bullet-list">
+                        <ul>
+                            <li><i class="fa-solid fa-diagram-project"></i> Ejemplo e-commerce: ver productos → seleccionar → carrito → modificar cantidades → calcular total → confirmar.</li>
+                            <li><i class="fa-solid fa-ban"></i> Sin registro ni login: eso no es parte del alcance del proyecto.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="tile" style="height: auto;">
+                        <div class="icon-box"><i class="fa-solid fa-route"></i></div>
+                        <h3>No hay entrega parcial</h3>
+                        <p>Un carrito sin confirmación final, o un circuito incompleto, no cumple con la consigna del proyecto final.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">39 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 40: Qué evitar + Código limpio -->
+    <div class="slide-container" id="slide40">
+        <h2 class="slide-title">Qué Evitar y Código Limpio</h2>
+        <div class="content-area">
+            <div class="two-column tiled">
+                <div>
+                    <h3>Qué Evitar</h3>
+                    <p><code>prompt</code>, <code>alert</code> o <code>confirm</code> nativos; arrays de objetos hardcodeados en el .js; circuito del simulador incompleto; más de 3 archivos .js; archivos sueltos fuera de la raíz salvo <code>index.html</code>.</p>
+                </div>
+                <div>
+                    <h3>Código Claro</h3>
+                    <p>Nombres de variables, funciones y objetos semánticos (nada de <code>x</code>, <code>a</code>, <code>funcA</code>). Sin código comentado en desuso ni <code>console.log</code> innecesarios.</p>
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">40 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 41: Cómo entregar -->
+    <div class="slide-container" id="slide41">
+        <h2 class="slide-title">Cómo Entregar el Proyecto Final</h2>
+        <div class="content-area">
+            <div class="slido-box">
+                <span class="moment-badge live"><i class="fa-brands fa-github"></i> Entregable</span>
+                <h3>Repositorio Público de GitHub</h3>
+                <p>Subí todos tus archivos a un repositorio de GitHub y compartí la URL. Verificá antes de entregar que las rutas de archivos y la carga del .json funcionen correctamente.</p>
+                <div class="slido-code" style="font-size: 18px; font-weight: 700; text-align: left; letter-spacing: normal;">
+                    ✓ Repositorio público en GitHub<br>
+                    ✓ Archivo HTML y archivo(s) JS con la consigna implementada<br>
+                    ✓ Incluir readme.md si el proyecto requiere configuración previa
+                </div>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">41 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 42: Consolidación de Conceptos (Table) -->
+    <div class="slide-container" id="slide42">
+        <h2 class="slide-title">Consolidación de Conceptos</h2>
+        <div class="content-area">
+            <div class="table-layout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Módulo</th>
+                            <th>Tema Principal</th>
+                            <th>Herramienta o Técnica Clave</th>
+                            <th>Meta Pedagógica</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Módulo 1</strong></td>
+                            <td>Node.js y npm</td>
+                            <td>Motor V8, fs, node_modules, package.json</td>
+                            <td>Llevar JavaScript más allá del navegador.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Módulo 2</strong></td>
+                            <td>Frameworks Modernos</td>
+                            <td>Componentes, estado, reactividad, React/Vue/Angular</td>
+                            <td>Entender cómo escala la industria las interfaces.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Módulo 3</strong></td>
+                            <td>Proyecto Final</td>
+                            <td>DOM, fetch/JSON, storage, async, librería externa</td>
+                            <td>Integrar todo el curso en un simulador real.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Evaluación</strong></td>
+                            <td>Entrega Final: Aplicación Web Interactiva</td>
+                            <td>Repositorio de GitHub público</td>
+                            <td>Demostrar dominio integral de JavaScript.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">42 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 43: ¿Dudas? ¿Consultas? -->
+    <div class="slide-container" id="slide43">
+        <div class="content-area" style="align-items: center; justify-content: center; text-align: center;">
+            <div style="display: flex; gap: 25px; align-items: flex-end; justify-content: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-question" style="font-size: 50px; color: var(--amarillo-solar);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 90px; color: var(--naranja-horizonte);"></i>
+                <i class="fa-solid fa-circle-question" style="font-size: 60px; color: var(--rosa-energia);"></i>
+            </div>
+            <h1 style="font-size: 64px;">¿Dudas? ¿Consultas?</h1>
+            <p style="font-size: 22px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 10px;">
+                Este es el momento de preguntar todo lo que necesites
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">43 / 44</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 44: Q&A / Legal Disclaimer -->
+    <div class="slide-container" id="slide44" style="background-color: var(--blanco-lienzo);">
+        <div class="content-area" style="justify-content: center;">
+            <h1 style="color: var(--naranja-oscuro); font-size: 60px; font-weight: 800; letter-spacing: -2px;">¡Muchas gracias!</h1>
+            <p style="font-size: 20px; color: var(--naranja-horizonte); font-weight: 600; margin-top: 5px;">Clase 11: Node.js, Frameworks Modernos y Proyecto Final</p>
+
+            <p class="legal-notice">
+                La información contenida en este documento es altamente sensible y de carácter educativo para los participantes inscriptos en Coderhouse. Queda estrictamente prohibida la reproducción, duplicación o revelación total o parcial del contenido pedagógico sin previa autorización escrita de Coderhouse. Copyright © 2026 Coderhouse. Todos los derechos reservados.
+            </p>
+        </div>
+        <div class="slide-footer">
+            <div class="brand-logo">CODER<span>HOUSE</span></div>
+            <div class="slide-index">44 / 44</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Presentation navigation controls toolbar -->
+<div class="controls-toolbar">
+    <button class="control-btn" id="prev-slide"><i class="fa-solid fa-arrow-left"></i> Anterior</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="control-btn" id="next-slide">Siguiente <i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<script>
+    // Slider Presentation Logic
+    const slides = document.querySelectorAll('.slide-container');
+    const prevBtn = document.getElementById('prev-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    let currentSlideIndex = 0;
+
+    // Create Navigation Indicators Dynamically
+    slides.forEach((slide, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(idx);
+        });
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateControls() {
+        dots.forEach((dot, idx) => {
+            if (idx === currentSlideIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= slides.length) return;
+
+        slides[currentSlideIndex].classList.remove('active');
+        currentSlideIndex = index;
+        slides[currentSlideIndex].classList.add('active');
+
+        updateControls();
+    }
+
+    // Keyboard Navigation Handlers
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+            goToSlide(currentSlideIndex + 1);
+        } else if (e.key === 'ArrowLeft') {
+            goToSlide(currentSlideIndex - 1);
+        }
+    });
+
+    // Button Click Event Listeners
+    prevBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        goToSlide(currentSlideIndex + 1);
+    });
+</script>
+
+</body>
+</html>
